@@ -1,22 +1,24 @@
-[
-    {
-        "user": "nobody",
-        "score": 0
-    },
-    {
-        "user": "nobody",
-        "score": 0
-    },
-    {
-        "user": "nobody",
-        "score": 0
-    },
-    {
-        "user": "nobody",
-        "score": 0
-    },
-    {
-        "user": "nobody",
-        "score": 0
-    }
-]
+{
+    "real": [
+        {
+            "user": "nobody",
+            "score": 0
+        },
+        {
+            "user": "nobody",
+            "score": 0
+        },
+        {
+            "user": "nobody",
+            "score": 0
+        },
+        {
+            "user": "nobody",
+            "score": 0
+        },
+        {
+            "user": "nobody",
+            "score": 0
+        }
+    ]
+}
