@@ -345,6 +345,8 @@ async def main():
         mouse_pressed = False
 
         if strikes > 2:
+            if score > data['real'][0]['score']:
+                data['real'][0]['score'] = score
             running = False
             draw_text('Game Over', font, white, int(screen_width/2) - 25, int(screen_height/2))
             draw_text(str(data['real'][0]['user']), font, white, int(screen_width/2) - 25, int(screen_height/2)-100)
