@@ -350,6 +350,7 @@ async def main():
             running = False
             draw_text('Game Over', font, white, int(screen_width/2) - 25, int(screen_height/2))
             draw_text(str(data['real'][0]['user']), font, white, int(screen_width/2) - 25, int(screen_height/2)-100)
+            draw_text(str(data['real'][0]['score']), font, white, int(screen_width/2) - 25, int(screen_height/2)-200)
 
         pygame.display.update()
         await asyncio.sleep(0)
