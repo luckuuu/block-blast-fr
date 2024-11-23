@@ -5,6 +5,16 @@ import random
 import pygame.sndarray
 import json
 import asyncio
+import pymongo
+from pymongo import MongoClient
+
+cluster = MongoClient("mongodb+srv://adamadamistwig:OFlwM9F4ZXZHKyh7@cluster0.nhvk4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+db = cluster["githubblast"]
+collection = db["test"]
+
+post = {"name": "hello", "score": 5}
+
+collection.insert_one(post)
 
 pygame.init()
 fps = 20
@@ -348,7 +358,7 @@ async def main():
             if score > data['real'][0]['score']:
                 data['real'][0]['score'] = score
             running = False
-            draw_text('Game Over', font, white, int(screen_width/2) - 25, int(screen_height/2))
+            draw_text('Game Over updated', font, white, int(screen_width/2) - 25, int(screen_height/2))
             draw_text(str(data['real'][0]['user']), font, white, int(screen_width/2) - 25, int(screen_height/2)-100)
             draw_text(str(data['real'][0]['score']), font, white, int(screen_width/2) - 25, int(screen_height/2)-200)
 
