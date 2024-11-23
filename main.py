@@ -1,3 +1,10 @@
+# /// script
+# dependencies = [
+#  "numpy",
+#  "pymongo",
+# ]
+# ///
+
 import numpy
 import pygame
 from pygame.locals import *
