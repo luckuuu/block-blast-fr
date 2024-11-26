@@ -1,3 +1,9 @@
+# /// script
+# dependencies = [
+#  "numpy",
+# ]
+# ///
+
 import numpy
 import pygame
 from pygame.locals import *
@@ -5,16 +11,7 @@ import random
 import pygame.sndarray
 import json
 import asyncio
-import pymongo
-from pymongo import MongoClient
-
-cluster = MongoClient("mongodb+srv://adamadamistwig:OFlwM9F4ZXZHKyh7@cluster0.nhvk4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-db = cluster["githubblast"]
-collection = db["test"]
-
-post = {"name": "hello", "score": 5}
-
-collection.insert_one(post)
+from fetch import RequestHandler
 
 pygame.init()
 fps = 20
@@ -307,9 +304,6 @@ class fruit_splatter(pygame.sprite.Sprite):
         
 trailPos = []
 
-f = open('data.json')
-data = json.load(f)
-
 fruit_group = pygame.sprite.Group()
 splatter_group = pygame.sprite.Group()
 
@@ -355,18 +349,23 @@ async def main():
         mouse_pressed = False
 
         if strikes > 2:
-            if score > data['real'][0]['score']:
-                data['real'][0]['score'] = score
             running = False
-            draw_text('Game Over updated', font, white, int(screen_width/2) - 25, int(screen_height/2))
-            draw_text(str(data['real'][0]['user']), font, white, int(screen_width/2) - 25, int(screen_height/2)-100)
-            draw_text(str(data['real'][0]['score']), font, white, int(screen_width/2) - 25, int(screen_height/2)-200)
-
+            dataSend = RequestHandler()
+            await dataSend.get("http://dreamlo.com/lb/qNZCj8mqsk2JfBWve7H0BAr-L2qGM0jkquvgzgeXgSMA/add/adacar1/"+str(score))
+            fakeScoreList = await dataSend.get("http://dreamlo.com/lb/674389178f40bb0e1429f3c6/json")
+            scoreList = json.loads(fakeScoreList)
+            print(scoreList)
+            draw_text('LEADERBOARD', font, white, int(screen_width/2), int(screen_height/2)-300)
+            draw_text("1.  "+scoreList['dreamlo']["leaderboard"]['entry'][0]['name'], font, white, int(screen_width/2), int(screen_height/2)-200)
+            draw_text(str(scoreList['dreamlo']["leaderboard"]['entry'][0]['score']), font, white, int(screen_width/2) +400, int(screen_height/2)-200)
+            draw_text("2.  "+scoreList['dreamlo']["leaderboard"]['entry'][1]['name'], font, white, int(screen_width/2), int(screen_height/2)-100)
+            draw_text(str(scoreList['dreamlo']["leaderboard"]['entry'][1]['score']), font, white, int(screen_width/2) +400, int(screen_height/2)-100)            
+            draw_text("3.  "+scoreList['dreamlo']["leaderboard"]['entry'][2]['name'], font, white, int(screen_width/2), int(screen_height/2))
+            draw_text(str(scoreList['dreamlo']["leaderboard"]['entry'][2]['score']), font, white, int(screen_width/2) +400, int(screen_height/2))
         pygame.display.update()
         await asyncio.sleep(0)
     pygame.quit
 asyncio.run(main())
-
 
 
 
