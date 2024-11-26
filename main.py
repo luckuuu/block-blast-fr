@@ -354,7 +354,6 @@ async def main():
             await dataSend.get("http://dreamlo.com/lb/qNZCj8mqsk2JfBWve7H0BAr-L2qGM0jkquvgzgeXgSMA/add/adacar1/"+str(score))
             fakeScoreList = await dataSend.get("http://dreamlo.com/lb/674389178f40bb0e1429f3c6/json")
             scoreList = json.loads(fakeScoreList)
-            print(scoreList)
             draw_text('LEADERBOARD', font, white, int(screen_width/2), int(screen_height/2)-300)
             draw_text("1.  "+scoreList['dreamlo']["leaderboard"]['entry'][0]['name'], font, white, int(screen_width/2), int(screen_height/2)-200)
             draw_text(str(scoreList['dreamlo']["leaderboard"]['entry'][0]['score']), font, white, int(screen_width/2) +400, int(screen_height/2)-200)
