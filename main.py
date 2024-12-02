@@ -24,7 +24,7 @@ pygame.init()
 pygame.display.set_caption("loading...")
 
 enter = False
-name = "name"
+name = ""
 
 left_button_img = pygame.transform.scale_by(pygame.image.load("IMG/arrows.png"), 0.1)
 right_button_img = pygame.transform.flip(left_button_img, True, False)
@@ -442,14 +442,14 @@ async def main():
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.KEYDOWN:
-                    if (event.key == pygame.K_LEFT) and game.game_over == False:
+                    if (event.key == pygame.K_LEFT or left_button.draw()) and game.game_over == False:
                         game.move_left()
-                    if (event.key == pygame.K_RIGHT) and game.game_over == False:
+                    if (event.key == pygame.K_RIGHT or right_button.draw()) and game.game_over == False:
                         game.move_right()
-                    if event.key == pygame.K_DOWN and game.game_over == False:
+                    if (event.key == pygame.K_DOWN or down_button.draw()) and game.game_over == False:
                         game.move_down()
                         game.update_score(0, 1)
-                    if (event.key == pygame.K_UP) and game.game_over == False:
+                    if (event.key == pygame.K_UP or rotate_button.draw()) and game.game_over == False:
                         game.rotate()
                 if event.type == GAME_UPDATE and game.game_over == False:
                     game.move_down()
