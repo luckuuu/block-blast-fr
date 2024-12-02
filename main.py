@@ -1,10 +1,15 @@
 # /// script
 # dependencies = [
 #  "numpy",
+#  "pygame-gui",
+#  "python-i18n",
+#  "pygame-ce",
 # ]
 # ///
 
 import numpy
+import pygame_gui
+import i18n
 import pygame
 from pygame.locals import *
 import random
@@ -18,6 +23,8 @@ fps = 20
 score = 0
 hs = 0
 strikes = 0
+enter = False
+name = ""
 
 mouse_pos = pygame.mouse.get_pos()
 sigmaFont = pygame.font.Font('IMG/Others/go3v2.ttf', 50)
@@ -41,6 +48,33 @@ screen_height = 1022
 screen_width = 764
 bg = pygame.image.load('IMG/Others/Dojo.png')
 screen = pygame.display.set_mode((screen_height, screen_width))
+MANAGER = pygame_gui.UIManager((screen_width, screen_height))
+CLOCK = pygame.time.Clock()
+TEXT_INPUT = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((350, 275), (900, 50)), manager=MANAGER, object_id="#main_text_entry")
+
+async def get_user_name():
+    global enter
+    global name
+    while enter == False:
+        UI_REFRESH_RATE = CLOCK.tick(60)/1000
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            if event.type == pygame_gui.UI_TEXT_ENTRY_FINISHED and event.ui_object_id == "#main_text_entry":
+                enter = True
+                name = event.text
+            
+            MANAGER.process_events(event)
+            await asyncio.sleep(0)
+
+        MANAGER.update(UI_REFRESH_RATE)
+
+        screen.fill("white")
+
+        MANAGER.draw_ui(screen)
+
+        pygame.display.update()
+        await asyncio.sleep(0)
 
 normal_fruits = [
     pygame.image.load('IMG/Fruit/Normal_Fruits/fruit_apple_red.png'),
@@ -314,54 +348,58 @@ splatter_group = pygame.sprite.Group()
 #currentFruit = Fruit_Normal(random.randint(0, 700), 800)
 #fruit_group.add(currentFruit)
 
-async def main():
+asyncio.run(get_user_name())
 
+async def main():
 
     running = True
     while running:
 
-        if len(fruit_group) == 0:
-            randidx = random.randint(0, 15)
-            currentFruit = Fruit_Normal(random.randint(0, 700), 800)
-            fruit_group.add(currentFruit)
-            if random.randint(0,2) == 0:
+        if enter:
+
+            if len(fruit_group) == 0:
                 randidx = random.randint(0, 15)
-                currentFruit1 = Fruit_Normal(random.randint(0, 700), 800)
-                fruit_group.add(currentFruit1)
-            if random.randint(0,5) == 0:
-                bomb = Bomb(random.randint(0, 700), 800)
-                fruit_group.add(bomb)
-        
-        balls = False
+                currentFruit = Fruit_Normal(random.randint(0, 700), 800)
+                fruit_group.add(currentFruit)
+                if random.randint(0,2) == 0:
+                    randidx = random.randint(0, 15)
+                    currentFruit1 = Fruit_Normal(random.randint(0, 700), 800)
+                    fruit_group.add(currentFruit1)
+                if random.randint(0,5) == 0:
+                    bomb = Bomb(random.randint(0, 700), 800)
+                    fruit_group.add(bomb)
+            
+            balls = False
 
-        font = pygame.font.SysFont('Comic Sans MS', 60)
-        white = (255, 255, 255)
-        
-        screen.blit(bg, (0, 0))
-        fruit_group.draw(screen)
-        fruit_group.update()
-        splatter_group.draw(screen)
-        splatter_group.update()
+            font = pygame.font.SysFont('Comic Sans MS', 60)
+            white = (255, 255, 255)
+            
+            screen.blit(bg, (0, 0))
+            fruit_group.draw(screen)
+            fruit_group.update()
+            splatter_group.draw(screen)
+            splatter_group.update()
 
-        draw_text("score: "+str(score), sigmaFont, white, int(screen_width/2)-190, 60)
-        draw_strikes(strikes)
+            draw_text("score: "+str(score), sigmaFont, white, int(screen_width/2)-190, 60)
+            draw_text("player: "+str(name), sigmaFont, white, int(screen_width/2)-190, 180)
+            draw_strikes(strikes)
 
-        mouse_pressed = False
+            mouse_pressed = False
 
-        if strikes > 2:
-            running = False
-            dataSend = RequestHandler()
-            await dataSend.get("http://dreamlo.com/lb/qNZCj8mqsk2JfBWve7H0BAr-L2qGM0jkquvgzgeXgSMA/add/adacar1/"+str(score))
-            fakeScoreList = await dataSend.get("http://dreamlo.com/lb/674389178f40bb0e1429f3c6/json")
-            scoreList = json.loads(fakeScoreList)
-            draw_text('LEADERBOARD', font, white, int(screen_width/2), int(screen_height/2)-300)
-            draw_text("1.  "+scoreList['dreamlo']["leaderboard"]['entry'][0]['name'], font, white, int(screen_width/2), int(screen_height/2)-200)
-            draw_text(str(scoreList['dreamlo']["leaderboard"]['entry'][0]['score']), font, white, int(screen_width/2) +400, int(screen_height/2)-200)
-            draw_text("2.  "+scoreList['dreamlo']["leaderboard"]['entry'][1]['name'], font, white, int(screen_width/2), int(screen_height/2)-100)
-            draw_text(str(scoreList['dreamlo']["leaderboard"]['entry'][1]['score']), font, white, int(screen_width/2) +400, int(screen_height/2)-100)            
-            draw_text("3.  "+scoreList['dreamlo']["leaderboard"]['entry'][2]['name'], font, white, int(screen_width/2), int(screen_height/2))
-            draw_text(str(scoreList['dreamlo']["leaderboard"]['entry'][2]['score']), font, white, int(screen_width/2) +400, int(screen_height/2))
-        pygame.display.update()
+            if strikes > 2:
+                running = False
+                dataSend = RequestHandler()
+                await dataSend.get("https://dreamlo.com/lb/qNZCj8mqsk2JfBWve7H0BAr-L2qGM0jkquvgzgeXgSMA/add/"+str(name)+"/"+str(score))
+                fakeScoreList = await dataSend.get("https://dreamlo.com/lb/674389178f40bb0e1429f3c6/json")
+                scoreList = json.loads(fakeScoreList)
+                draw_text('LEADERBOARD', font, white, int(screen_width/2), int(screen_height/2)-300)
+                draw_text("1.  "+scoreList['dreamlo']["leaderboard"]['entry'][0]['name'], font, white, int(screen_width/2), int(screen_height/2)-200)
+                draw_text(str(scoreList['dreamlo']["leaderboard"]['entry'][0]['score']), font, white, int(screen_width/2) +400, int(screen_height/2)-200)
+                draw_text("2.  "+scoreList['dreamlo']["leaderboard"]['entry'][1]['name'], font, white, int(screen_width/2), int(screen_height/2)-100)
+                draw_text(str(scoreList['dreamlo']["leaderboard"]['entry'][1]['score']), font, white, int(screen_width/2) +400, int(screen_height/2)-100)            
+                draw_text("3.  "+scoreList['dreamlo']["leaderboard"]['entry'][2]['name'], font, white, int(screen_width/2), int(screen_height/2))
+                draw_text(str(scoreList['dreamlo']["leaderboard"]['entry'][2]['score']), font, white, int(screen_width/2) +400, int(screen_height/2))
+            pygame.display.update()
         await asyncio.sleep(0)
     pygame.quit
 asyncio.run(main())
