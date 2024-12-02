@@ -45,15 +45,23 @@ link_font = pygame.font.SysFont('Consolas', 35)
 link_font2 = pygame.font.SysFont('Consolas', 35)
 link_font2.set_underline(True)
 link_font2.set_italic(True)
+link_font4 = pygame.font.SysFont('Consolas', 35)
+link_font4.set_underline(True)
+link_font4.set_italic(True)
+link_font4.get_bold
+link_font3 = pygame.font.SysFont('Consolas', 25)
 link_color = (0, 0, 0)
+link_color2 = (0, 102, 255)
 async def get_user_name():
     global enter
     global name
     screen.fill("white")
-    rect = screen.blit(link_font2.render("Click Here if you are on Mobile", True, link_color), (65, 100))
-    rect2 = screen.blit(link_font.render("OR type your school username", True, link_color), (65, 200))
-    rect3 = screen.blit(link_font.render("(ex. vinpat2) in the box below", True, link_color), (65, 250))
-    rect4 = screen.blit(link_font2.render("If on mobile, click here to start", True, link_color), (65, 500))
+    rect = screen.blit(link_font2.render("If on mobile, screenshot your score and", True, link_color), (25, 50))
+    rect = screen.blit(link_font2.render("email csedtetris@gmail or go to", True, link_color), (25, 85))
+    rect = screen.blit(link_font2.render("https://forms.gle/Rcr12XwK1eYrc6Bu8", True, link_color), (25, 125))
+    rect2 = screen.blit(link_font3.render("On desktop, type your school username", True, link_color), (20, 200))
+    rect3 = screen.blit(link_font3.render("(ex. vinpat2) in the box below and hit enter", True, link_color), (20, 250))
+    rect4 = screen.blit(link_font4.render("If on mobile, click here to start", True, link_color2), (65, 500))
     while enter == False:
         UI_REFRESH_RATE = CLOCK.tick(60)/1000
         pygame.key.start_text_input()
