@@ -13,49 +13,47 @@ import i18n
 import pygame
 from pygame.locals import *
 import random
+import sys
 import pygame.sndarray
 import json
 import asyncio
+import webbrowser
 from fetch import RequestHandler
 
 pygame.init()
 pygame.display.set_caption("loading...")
-fps = 20
-score = 0
-hs = 0
-strikes = 0
+
 enter = False
-name = ""
+name = "name"
 
-mouse_pos = pygame.mouse.get_pos()
-sigmaFont = pygame.font.Font('IMG/Others/go3v2.ttf', 50)
+left_button_img = pygame.transform.scale_by(pygame.image.load("IMG/arrows.png"), 0.1)
+right_button_img = pygame.transform.flip(left_button_img, True, False)
+down_button_img = pygame.transform.rotate(left_button_img, 90)
+rotate_button_img =	pygame.transform.scale_by(pygame.image.load("IMG/rotatebutton.png"), 0.1)
 
-def draw_text(text, font, text_col, x, y):
-    img = font.render(text, True, text_col)
-    screen.blit(img, (x, y))
-    
-def draw_strikes(strikes):
-    x_font = pygame.font.Font('IMG/Others/go3v2.ttf', 50)
-    red = (255, 0, 0)
-    white = (255, 255, 255)
-    for i in range(3):
-        color = red if i < strikes else white
-        scale = 1.5 + i * 0.25
-        x_img = x_font.render('X', True, color)
-        x_img = pygame.transform.scale(x_img, (int(x_img.get_width() * scale), int(x_img.get_height() * scale)))
-        screen.blit(x_img, (screen_width - .000001 + i * 60, 20))
 
-screen_height = 1022
-screen_width = 764
-bg = pygame.image.load('IMG/Others/Dojo.png')
-screen = pygame.display.set_mode((screen_height, screen_width))
-MANAGER = pygame_gui.UIManager((screen_width, screen_height))
+
+
+score_rect = pygame.Rect(320, 55, 170, 60)
+next_rect = pygame.Rect(320, 215, 170, 180)
+
+screen = pygame.display.set_mode((500, 620))
+MANAGER = pygame_gui.UIManager((500, 620))
 CLOCK = pygame.time.Clock()
-TEXT_INPUT = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((350, 275), (900, 50)), manager=MANAGER, object_id="#main_text_entry")
-
+TEXT_INPUT = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((0, 300), (900, 50)), manager=MANAGER, object_id="#main_text_entry")
+link_font = pygame.font.SysFont('Consolas', 35)
+link_font2 = pygame.font.SysFont('Consolas', 35)
+link_font2.set_underline(True)
+link_font2.set_italic(True)
+link_color = (0, 0, 0)
 async def get_user_name():
     global enter
     global name
+    screen.fill("white")
+    rect = screen.blit(link_font2.render("Click Here if you are on Mobile", True, link_color), (65, 100))
+    rect2 = screen.blit(link_font.render("OR type your school username", True, link_color), (65, 200))
+    rect3 = screen.blit(link_font.render("(ex. vinpat2) in the box below", True, link_color), (65, 250))
+    rect4 = screen.blit(link_font2.render("If on mobile, click here to start", True, link_color), (65, 500))
     while enter == False:
         UI_REFRESH_RATE = CLOCK.tick(60)/1000
         pygame.key.start_text_input()
@@ -65,291 +63,371 @@ async def get_user_name():
             if event.type == pygame_gui.UI_TEXT_ENTRY_FINISHED and event.ui_object_id == "#main_text_entry":
                 enter = True
                 name = event.text
-                pygame.key.stop_text_input()
+                pygame.key.stop_text_input()   
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = event.pos
+
+                if rect.collidepoint(pos):
+                    webbrowser.open(r"https://docs.google.com/forms/d/e/1FAIpQLScQ-nwkLslAvQTsHIf9P_tSQy_YWWxt20kJp_RNiDeIVCOOPw/viewform?usp=sf_link")
+                if rect4.collidepoint(pos):
+                    enter = True
+                    name = "mobileuser" 
+                    pygame.key.stop_text_input()          
             
             MANAGER.process_events(event)
             await asyncio.sleep(0)
 
         MANAGER.update(UI_REFRESH_RATE)
 
-        screen.fill("white")
-
         MANAGER.draw_ui(screen)
 
         pygame.display.update()
         await asyncio.sleep(0)
 
-normal_fruits = [
-    pygame.image.load('IMG/Fruit/Normal_Fruits/fruit_apple_red.png'),
-    pygame.image.load('IMG/Fruit/Normal_Fruits/fruit_strawberry.png'),
-    pygame.image.load('IMG/Fruit/Normal_Fruits/fruit_watermelon.png'),
-    pygame.image.load('IMG/Fruit/Normal_Fruits/fruit_plum.png'),
-    pygame.image.load('IMG/Fruit/Normal_Fruits/fruit_apple_green.png'),
-    pygame.image.load('IMG/Fruit/Normal_Fruits/fruit_kiwi.png'),
-    pygame.image.load('IMG/Fruit/Normal_Fruits/fruit_lime.png'),
-    pygame.image.load('IMG/Fruit/Normal_Fruits/fruit_passionfruit.png'),
-    pygame.image.load('IMG/Fruit/Normal_Fruits/fruit_banana.png'),
-    pygame.image.load('IMG/Fruit/Normal_Fruits/fruit_coconut.png'),
-    pygame.image.load('IMG/Fruit/Normal_Fruits/fruit_mango.png'),
-    pygame.image.load('IMG/Fruit/Normal_Fruits/fruit_lemon.png'),
-    pygame.image.load('IMG/Fruit/Normal_Fruits/fruit_orange.png'),
-    pygame.image.load('IMG/Fruit/Normal_Fruits/fruit_pineapple.png'),
-    pygame.image.load('IMG/Fruit/Normal_Fruits/fruit_pear (1).png'),
-    pygame.image.load('IMG/Fruit/Normal_Fruits/fruit_dragon.png'),
-    pygame.image.load('IMG/Fruit/Normal_Fruits/fruit_peach.png'),
-]
-
-special_fruits = [
-    pygame.image.load('IMG/Fruit/Special_Fruits/Dragon_Fruit.png'),
-    pygame.image.load('IMG/Fruit/Special_Fruits/Freeze_Banana.png'),
-    pygame.image.load('IMG/Fruit/Special_Fruits/Score_2x_Banana.png'),
-    pygame.image.load('IMG/Fruit/Special_Fruits/Starfruit.png'),
-    pygame.image.load('IMG/Others/Bomb.png'),
-    pygame.image.load('IMG/Others/-10_Bomb.png'),
-]
-
-fruit_splatters = [
-    pygame.image.load("IMG/Splatters/red_splatter.png"),
-    pygame.image.load("IMG/Splatters/green_splatter.png"),
-    pygame.image.load("IMG/Splatters/yellow_splatter.png"),
-    pygame.image.load("IMG/Splatters/clear_splatter.png"),
-]
-
-fruit_slices = [
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_apple_red_slice1.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_apple_red_slice2.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_strawberry_slice1.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_strawberry_slice2.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_watermelon_slice1.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_watermelon_slice2.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_plum_slice1.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_plum_slice2.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_apple_green_slice1.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_apple_green_slice2.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_kiwi_slice1.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_kiwi_slice2.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_lime_slice1.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_lime_slice2.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_passionfruit_slice1.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_passionfruit_slice2.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_banana_slice1.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_banana_slice2.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_coconut_slice1.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_coconut_slice2.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_mango_slice1.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_mango_slice2.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_lemon_slice1.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_lemon_slice2.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_orange_slice1.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_orange_slice2.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_pineapple_slice1.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_pineapple_slice2.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_pear_slice1.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_pear_slice2.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_dragon_slice1.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_dragon_slice2.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_peach_slice1.png"),
-    pygame.image.load("IMG/Fruit/Fruit_Slices/fruit_peach_slice2.png"),
-]
-
-fruit_slice_map = {
-    0: (fruit_slices[0], fruit_slices[1]),  # Apple Red
-    1: (fruit_slices[2], fruit_slices[3]),  # Strawberry
-    2: (fruit_slices[4], fruit_slices[5]),  # Watermelon
-    3: (fruit_slices[6], fruit_slices[7]),  # Plum
-    4: (fruit_slices[8], fruit_slices[9]),  # Apple Green
-    5: (fruit_slices[10], fruit_slices[11]), # Kiwi
-    6: (fruit_slices[12], fruit_slices[13]), # Lime
-    7: (fruit_slices[14], fruit_slices[15]), # Passionfruit
-    8: (fruit_slices[16], fruit_slices[17]), # Banana
-    9: (fruit_slices[18], fruit_slices[19]), # Coconut
-    10: (fruit_slices[20], fruit_slices[21]),# Mango
-    11: (fruit_slices[22], fruit_slices[23]),# Lemon
-    12: (fruit_slices[24], fruit_slices[25]),# Orange
-    13: (fruit_slices[26], fruit_slices[27]),# Pineapple
-    14: (fruit_slices[28], fruit_slices[29]),# Pear
-    15: (fruit_slices[30], fruit_slices[31]) # Dragon Fruit
-}
-#pygame.mixer.Sound("IMG/SFX/fuze.mp3"),
-#pygame.mixer.Sound("IMG/SFX/cut1.mp3"),
-#pygame.mixer.Sound("IMG/SFX/cut2.mp3"),
-#pygame.mixer.Sound("IMG/SFX/metal_pipe.mp3")
+clock = pygame.time.Clock()
 
 
-for i in range(len(fruit_splatters)):
-    fruit_splatters[i] = pygame.transform.scale(fruit_splatters[i], (int(fruit_splatters[i].get_width() * 0.3), int(fruit_splatters[i].get_height() * 0.3)))
+GAME_UPDATE = pygame.USEREVENT
+pygame.time.set_timer(GAME_UPDATE, 200)
 
-poopoopeepee = True
-randidx = random.randint(0, 15)
-randidxSpecial = random.randint(0, 5)
+def draw_text(text, font, text_col, x, y):
+    img = font.render(text, True, text_col)
+    screen.blit(img, (x, y))
 
-class Fruit_Normal(pygame.sprite.Sprite):
-    global randidx
-    def __init__(self, x, y):
-        super().__init__()
-        self.image = normal_fruits[randidx]
-        self.rect = self.image.get_rect()
-        self.rect.center = [x, y]
-        self.vel = random.randint(-25, -20)
-        self.clicked = False
-        self.image.set_alpha(255)
-        self.increment = 0
+class Block:
+    def __init__(self, id):
+        self.id = id
+        self.cells = {}
+        self.cell_size = 30
+        self.row_offset = 0
+        self.column_offset = 0
+        self.rotation_state = 0
+        self.colors = Colors.get_cell_colors()
 
-    def splatter_type(self, idx):
-        self.idx = idx
-        if(idx < 4):
-            return 0
-        elif(idx < 9):
-            return 1
-        elif(idx < 16):
-            return 2 
+    def move(self, rows, columns):
+        self.row_offset += rows
+        self.column_offset += columns
+
+    def get_cell_positions(self):
+        tiles = self.cells[self.rotation_state]
+        moved_tiles = []
+        for position in tiles:
+            position = Position(position.row + self.row_offset, position.column + self.column_offset)
+            moved_tiles.append(position)
+        return moved_tiles
+
+    def rotate(self):
+        self.rotation_state += 1
+        if self.rotation_state == len(self.cells):
+            self.rotation_state = 0
+
+    def undo_rotation(self):
+        self.rotation_state -= 1
+        if self.rotation_state == -1:
+            self.rotation_state = len(self.cells) - 1
+
+    def draw(self, screen, offset_x, offset_y):
+        tiles = self.get_cell_positions()
+        for tile in tiles:
+            tile_rect = pygame.Rect(offset_x + tile.column * self.cell_size, 
+                offset_y + tile.row * self.cell_size, self.cell_size -1, self.cell_size -1)
+            pygame.draw.rect(screen, self.colors[self.id], tile_rect)
+
+class LBlock(Block):
+    def __init__(self):
+        super().__init__(id = 1)
+        self.cells = {
+            0: [Position(0, 2), Position(1, 0), Position(1, 1), Position(1, 2)],
+            1: [Position(0, 1), Position(1, 1), Position(2, 1), Position(2, 2)],
+            2: [Position(1, 0), Position(1, 1), Position(1, 2), Position(2, 0)],
+            3: [Position(0, 0), Position(0, 1), Position(1, 1), Position(2, 1)]
+        }
+        self.move(0, 3)
+
+class JBlock(Block):
+    def __init__(self):
+        super().__init__(id = 2)
+        self.cells = {
+            0: [Position(0, 0), Position(1, 0), Position(1, 1), Position(1, 2)],
+            1: [Position(0, 1), Position(0, 2), Position(1, 1), Position(2, 1)],
+            2: [Position(1, 0), Position(1, 1), Position(1, 2), Position(2, 2)],
+            3: [Position(0, 1), Position(1, 1), Position(2, 0), Position(2, 1)]
+        }
+        self.move(0, 3)
+
+class IBlock(Block):
+    def __init__(self):
+        super().__init__(id = 3)
+        self.cells = {
+            0: [Position(1, 0), Position(1, 1), Position(1, 2), Position(1, 3)],
+            1: [Position(0, 2), Position(1, 2), Position(2, 2), Position(3, 2)],
+            2: [Position(2, 0), Position(2, 1), Position(2, 2), Position(2, 3)],
+            3: [Position(0, 1), Position(1, 1), Position(2, 1), Position(3, 1)]
+        }
+        self.move(-1, 3)
+
+class OBlock(Block):
+    def __init__(self):
+        super().__init__(id = 4)
+        self.cells = {
+            0: [Position(0, 0), Position(0, 1), Position(1, 0), Position(1, 1)]
+        }
+        self.move(0, 4)
+
+class SBlock(Block):
+    def __init__(self):
+        super().__init__(id = 5)
+        self.cells = {
+            0: [Position(0, 1), Position(0, 2), Position(1, 0), Position(1, 1)],
+            1: [Position(0, 1), Position(1, 1), Position(1, 2), Position(2, 2)],
+            2: [Position(1, 1), Position(1, 2), Position(2, 0), Position(2, 1)],
+            3: [Position(0, 0), Position(1, 0), Position(1, 1), Position(2, 1)]
+        }
+        self.move(0, 3)
+
+class TBlock(Block):
+    def __init__(self):
+        super().__init__(id = 6)
+        self.cells = {
+            0: [Position(0, 1), Position(1, 0), Position(1, 1), Position(1, 2)],
+            1: [Position(0, 1), Position(1, 1), Position(1, 2), Position(2, 1)],
+            2: [Position(1, 0), Position(1, 1), Position(1, 2), Position(2, 1)],
+            3: [Position(0, 1), Position(1, 0), Position(1, 1), Position(2, 1)]
+        }
+        self.move(0, 3)
+
+class ZBlock(Block):
+    def __init__(self):
+        super().__init__(id = 7)
+        self.cells = {
+            0: [Position(0, 0), Position(0, 1), Position(1, 1), Position(1, 2)],
+            1: [Position(0, 2), Position(1, 1), Position(1, 2), Position(2, 1)],
+            2: [Position(1, 0), Position(1, 1), Position(2, 1), Position(2, 2)],
+            3: [Position(0, 1), Position(1, 0), Position(1, 1), Position(2, 0)]
+        }
+        self.move(0, 3)
+
+class Game:
+    def __init__(self):
+        self.grid = Grid()
+        self.blocks = [IBlock(), JBlock(), LBlock(), OBlock(), SBlock(), TBlock(), ZBlock()]
+        self.current_block = self.get_random_block()
+        self.next_block = self.get_random_block()
+        self.game_over = False
+        self.score = 0
+
+    def update_score(self, lines_cleared, move_down_points):
+        if lines_cleared == 1:
+            self.score += 100
+        elif lines_cleared == 2:
+            self.score += 300
+        elif lines_cleared == 3:
+            self.score += 500
+        elif lines_cleared == 4:
+            self.score += 1000
+        self.score += move_down_points
+
+    def get_random_block(self):
+        if len(self.blocks) == 0:
+            self.blocks = [IBlock(), JBlock(), LBlock(), OBlock(), SBlock(), TBlock(), ZBlock()]
+        block = random.choice(self.blocks)
+        self.blocks.remove(block)
+        return block
+
+    def move_left(self):
+        self.current_block.move(0, -1)
+        if self.block_inside() == False or self.block_fits() == False:
+            self.current_block.move(0, 1)
+
+    def move_right(self):
+        self.current_block.move(0, 1)
+        if self.block_inside() == False or self.block_fits() == False:
+            self.current_block.move(0, -1)
+
+    def move_down(self):
+        self.current_block.move(1, 0)
+        if self.block_inside() == False or self.block_fits() == False:
+            self.current_block.move(-1, 0)
+            self.lock_block()
+
+    def lock_block(self):
+        tiles = self.current_block.get_cell_positions()
+        for position in tiles:
+            self.grid.grid[position.row][position.column] = self.current_block.id
+        self.current_block = self.next_block
+        self.next_block = self.get_random_block()
+        rows_cleared = self.grid.clear_full_rows()
+        if rows_cleared > 0:
+            self.update_score(rows_cleared, 0)
+        if self.block_fits() == False:
+            self.game_over = True
+
+    def reset(self):
+        self.grid.reset()
+        self.blocks = [IBlock(), JBlock(), LBlock(), OBlock(), SBlock(), TBlock(), ZBlock()]
+        self.current_block = self.get_random_block()
+        self.next_block = self.get_random_block()
+        self.score = 0
+
+    def block_fits(self):
+        tiles = self.current_block.get_cell_positions()
+        for tile in tiles:
+            if self.grid.is_empty(tile.row, tile.column) == False:
+                return False
+        return True
+
+    def rotate(self):
+        self.current_block.rotate()
+        if self.block_inside() == False or self.block_fits() == False:
+            self.current_block.undo_rotation()
+
+    def block_inside(self):
+        tiles = self.current_block.get_cell_positions()
+        for tile in tiles:
+            if self.grid.is_inside(tile.row, tile.column) == False:
+                return False
+        return True
+
+    def draw(self, screen):
+        self.grid.draw(screen)
+        self.current_block.draw(screen, 11, 11)
+
+        if self.next_block.id == 3:
+            self.next_block.draw(screen, 255, 290)
+        elif self.next_block.id == 4:
+            self.next_block.draw(screen, 255, 280)
         else:
-            return 3
+            self.next_block.draw(screen, 270, 270)
 
-    def update(self): 
-        if poopoopeepee:  
-            mouse_pos = pygame.mouse.get_pos()
+class Grid:
+    def __init__(self):
+        self.num_rows = 20
+        self.num_cols = 10
+        self.cell_size = 30
+        self.grid = [[0 for j in range(self.num_cols)] for i in range(self.num_rows)]
+        self.colors = Colors.get_cell_colors()
 
-        self.vel += 0.5
-        self.increment += 1
+    def print_grid(self):
+        for row in range(self.num_rows):
+            for column in range(self.num_cols):
+                print(self.grid[row][column], end = " ")
+            print()
 
-        self.rect.y += int(self.vel)
-        global strikes
-        if self.rect.y > 801:
-            self.kill()
-            strikes += 1
-        self.image = pygame.transform.rotate(normal_fruits[randidx], self.vel * -3)
+    def is_inside(self, row, column):
+        if row >= 0 and row < self.num_rows and column >= 0 and column < self.num_cols:
+            return True
+        return False
 
-        if self.rect.collidepoint(mouse_pos):
-            global score
-            global hs
-            score += 1
-            if score > hs:
-                hs = score
-            self.kill()
-            splatter1 = fruit_slice(self.rect.centerx + random.randint(-10, 10), self.rect.centery, fruit_slice_map[randidx][0])
-            splatter2 = fruit_slice(self.rect.centerx + random.randint(-10, 10), self.rect.centery, fruit_slice_map[randidx][1])
-            splatter_group.add(splatter1)
-            splatter_group.add(splatter2)
+    def is_empty(self, row, column):
+        if self.grid[row][column] == 0:
+            return True
+        return False
 
-class Bomb(pygame.sprite.Sprite):
-    def __init__(self, x, y):
-        super().__init__()
-        self.image = special_fruits[4]  
-        self.rect = self.image.get_rect()
-        self.rect.center = [x, y]
-        self.vel = random.randint(-25, -20)
-        self.clicked = False
-        self.image.set_alpha(255)
-        self.increment = 0
+    def is_row_full(self, row):
+        for column in range(self.num_cols):
+            if self.grid[row][column] == 0:
+                return False
+        return True
 
-    def update(self): 
-        self.vel += 0.5
-        self.increment += 1
+    def clear_row(self, row):
+        for column in range(self.num_cols):
+            self.grid[row][column] = 0
 
-        self.rect.y += int(self.vel)
-        global strikes
-        if self.rect.y > 801:
-            self.kill()
-        self.image = pygame.transform.rotate(special_fruits[4], self.vel * -3)
+    def move_row_down(self, row, num_rows):
+        for column in range(self.num_cols):
+            self.grid[row+num_rows][column] = self.grid[row][column]
+            self.grid[row][column] = 0
 
-        if self.rect.collidepoint(pygame.mouse.get_pos()):
-            global score
-            global hs
-            self.kill()
-            pygame.quit()
+    def clear_full_rows(self):
+        completed = 0
+        for row in range(self.num_rows-1, 0, -1):
+            if self.is_row_full(row):
+                self.clear_row(row)
+                completed += 1
+            elif completed > 0:
+                self.move_row_down(row, completed)
+        return completed
 
-class fruit_slice(pygame.sprite.Sprite):
+    def reset(self):
+        for row in range(self.num_rows):
+            for column in range(self.num_cols):
+                self.grid[row][column] = 0
+
+    def draw(self, screen):
+        for row in range(self.num_rows):
+            for column in range(self.num_cols):
+                cell_value = self.grid[row][column]
+                cell_rect = pygame.Rect(column*self.cell_size + 11, row*self.cell_size + 11,
+                self.cell_size -1, self.cell_size -1)
+                pygame.draw.rect(screen, self.colors[cell_value], cell_rect)
+
+class Position:
+    def __init__(self, row, column):
+        self.row = row
+        self.column = column
+
+
+class Colors:
+    dark_grey = (26, 31, 40)
+    green = (47, 230, 23)
+    red = (232, 18, 18)
+    orange = (226, 116, 17)
+    yellow = (237, 234, 4)
+    purple = (166, 0, 247)
+    cyan = (21, 204, 209)
+    blue = (13, 64, 216)
+    white = (255, 255, 255)
+    dark_blue = (44, 44, 127)
+    light_blue = (59, 85, 162)
+
+    @classmethod
+    def get_cell_colors(cls):
+        return [cls.dark_grey, cls.green, cls.red, cls.orange, cls.yellow, cls.purple, cls.cyan, cls.blue]
+
+
+class Button:
     def __init__(self, x, y, image):
-        super().__init__()
         self.image = image
         self.rect = self.image.get_rect()
-        self.rect.center = [x, y]
-        self.vel = random.randint(-15, 15)
-        self.clicked = False
-        self.image.set_alpha(255)
-
-    def update(self): 
-        self.vel += 0.5
-        self.rect.y += int(self.vel)
-        if self.rect.y > 801:
-            self.kill()
-
-class Fruit_Special(pygame.sprite.Sprite):
-    global randidxSpecial
+        self.rect.topleft = (x, y)
     
-    def __init__(self, x, y):
-        super().__init__()
-        self.image = special_fruits[randidxSpecial]
-        self.rect = self.image.get_rect()
-        self.rect.center = [x, y]
-        self.vel = random.randint(-25, -20)
-        self.clicked = False
-        self.image.set_alpha(255)
-        self.increment = 0
+    def draw(self):
 
-    def splatter_type(self, idx):
-        self.idx = idx
-        if(idx == 0):
-            return 0
-        elif(idx == 1):
-            return 1
-        elif(idx == 2):
-            return 2 
-        elif(idx == 3):
-            return 3
-        elif(idx == 4):
-            return 0
+        self.action = False
 
-    def update(self): 
-        if poopoopeepee:  
-            mouse_pos = pygame.mouse.get_pos()
+        #get mouse pos
+        m_pos = pygame.mouse.get_pos()
 
-        self.vel += 0.5
-        self.increment += 1
+        #check if mouse in on button
+        if self.rect.collidepoint(m_pos):
+            if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
+                self.clicked = True
+                self.action = True
+                
+            if pygame.mouse.get_pressed()[0] == 0:
+                self.action = False
+                self.clicked = False
 
-        self.rect.y += int(self.vel)
-        global strikes 
-        if self.rect.y > 801:
-            self.kill()
-            strikes += 1
-        self.image = pygame.transform.rotate(special_fruits[randidxSpecial], self.vel * -3)
+        #draw button
+        screen.blit(self.image, (self.rect.x, self.rect.y))
 
-        if self.rect.collidepoint(mouse_pos):
-            global score
-            global hs
-            score += 1
-            if score > hs:
-                hs = score
-            self.kill()
-            splatter = fruit_splatter(self.rect.centerx, self.rect.centery, self.splatter_type(randidxSpecial))
-            splatter_group.add(splatter)
+        return self.action
 
-class fruit_splatter(pygame.sprite.Sprite):
-    def __init__(self, x, y, fruitType):
-        super().__init__()
-        self.image = fruit_splatters[fruitType] if fruitType < len(fruit_splatters) else fruit_splatters[0]
-        self.rect = self.image.get_rect(center=(x, y))
-        self.alpha = 255
-        
-    def update(self):
-        self.alpha = max(0, self.alpha-5)
-        self.image.set_alpha(self.alpha)
-        if self.alpha <= 0:
-            self.kill()
 
-        
-trailPos = []
 
-fruit_group = pygame.sprite.Group()
-splatter_group = pygame.sprite.Group()
+title_font = pygame.font.Font(None, 40)
+score_surface = title_font.render("Score", True, Colors.white)
+next_surface = title_font.render("Next", True, Colors.white)
+game_over_surface = title_font.render("GAME OVER", True, Colors.white)
 
-#if random.randint(0,9) == 0:
-    #currentSpecialFruit = Fruit_Special(random.randint(0, 700), 800)
-   # fruit_group.add(currentSpecialFruit)
+left_button = Button(340, 450, left_button_img)
+right_button = Button(410, 450, right_button_img)
+down_button = Button(375, 500, down_button_img)
+rotate_button = Button(375, 400, rotate_button_img)
 
-#currentFruit = Fruit_Normal(random.randint(0, 700), 800)
-#fruit_group.add(currentFruit)
+game = Game()
+font = pygame.font.SysFont('Comic Sans MS', 40)
+white = (255, 255, 255)
 
 asyncio.run(get_user_name())
 
@@ -359,54 +437,67 @@ async def main():
     while running:
 
         if enter:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if (event.key == pygame.K_LEFT) and game.game_over == False:
+                        game.move_left()
+                    if (event.key == pygame.K_RIGHT) and game.game_over == False:
+                        game.move_right()
+                    if event.key == pygame.K_DOWN and game.game_over == False:
+                        game.move_down()
+                        game.update_score(0, 1)
+                    if (event.key == pygame.K_UP) and game.game_over == False:
+                        game.rotate()
+                if event.type == GAME_UPDATE and game.game_over == False:
+                    game.move_down()
 
-            if len(fruit_group) == 0:
-                randidx = random.randint(0, 15)
-                currentFruit = Fruit_Normal(random.randint(0, 700), 800)
-                fruit_group.add(currentFruit)
-                if random.randint(0,2) == 0:
-                    randidx = random.randint(0, 15)
-                    currentFruit1 = Fruit_Normal(random.randint(0, 700), 800)
-                    fruit_group.add(currentFruit1)
-                if random.randint(0,5) == 0:
-                    bomb = Bomb(random.randint(0, 700), 800)
-                    fruit_group.add(bomb)
+            #Drawing
+            score_value_surface = title_font.render(str(game.score), True, Colors.white)
+            draw_text(str(name), font, white, 365, 120)
             
-            balls = False
 
-            font = pygame.font.SysFont('Comic Sans MS', 60)
-            white = (255, 255, 255)
+            screen.fill(Colors.dark_blue)
+            screen.blit(score_surface, (365, 20, 50, 50))
+            screen.blit(next_surface, (375, 180, 50, 50))
+
+            pygame.draw.rect(screen, Colors.light_blue, score_rect, 0, 10)
+            screen.blit(score_value_surface, score_value_surface.get_rect(centerx = score_rect.centerx, 
+                centery = score_rect.centery))
+            pygame.draw.rect(screen, Colors.light_blue, next_rect, 0, 10)
+            game.draw(screen)
+
+            if left_button.draw():
+                game.move_left()
+
+            if right_button.draw():
+                game.move_right()
+
+            if down_button.draw():
+                game.move_down()
+                game.update_score(0, 1)
+
+            if rotate_button.draw():
+                game.rotate()
             
-            screen.blit(bg, (0, 0))
-            fruit_group.draw(screen)
-            fruit_group.update()
-            splatter_group.draw(screen)
-            splatter_group.update()
-
-            draw_text("score: "+str(score), sigmaFont, white, int(screen_width/2)-190, 60)
-            draw_text("player: "+str(name), sigmaFont, white, int(screen_width/2)-190, 180)
-            draw_strikes(strikes)
-
-            mouse_pressed = False
-
-            if strikes > 2:
+            if game.game_over == True:
                 running = False
+                screen.blit(game_over_surface, (320, 450, 50, 50))
                 dataSend = RequestHandler()
-                await dataSend.get("https://dreamlo.com/lb/qNZCj8mqsk2JfBWve7H0BAr-L2qGM0jkquvgzgeXgSMA/add/"+str(name)+"/"+str(score))
+                await dataSend.get("https://dreamlo.com/lb/qNZCj8mqsk2JfBWve7H0BAr-L2qGM0jkquvgzgeXgSMA/add/"+str(name)+"/"+str(game.score))
                 fakeScoreList = await dataSend.get("https://dreamlo.com/lb/674389178f40bb0e1429f3c6/json")
                 scoreList = json.loads(fakeScoreList)
-                draw_text('LEADERBOARD', font, white, int(screen_width/2), int(screen_height/2)-300)
-                draw_text("1.  "+scoreList['dreamlo']["leaderboard"]['entry'][0]['name'], font, white, int(screen_width/2), int(screen_height/2)-200)
-                draw_text(str(scoreList['dreamlo']["leaderboard"]['entry'][0]['score']), font, white, int(screen_width/2) +400, int(screen_height/2)-200)
-                draw_text("2.  "+scoreList['dreamlo']["leaderboard"]['entry'][1]['name'], font, white, int(screen_width/2), int(screen_height/2)-100)
-                draw_text(str(scoreList['dreamlo']["leaderboard"]['entry'][1]['score']), font, white, int(screen_width/2) +400, int(screen_height/2)-100)            
-                draw_text("3.  "+scoreList['dreamlo']["leaderboard"]['entry'][2]['name'], font, white, int(screen_width/2), int(screen_height/2))
-                draw_text(str(scoreList['dreamlo']["leaderboard"]['entry'][2]['score']), font, white, int(screen_width/2) +400, int(screen_height/2))
+                draw_text('LEADERBOARD', font, white, 50, int(620/2)-200)
+                draw_text("1.  "+scoreList['dreamlo']["leaderboard"]['entry'][0]['name'] + ":", font, white, 50, int(620/2)-100)
+                draw_text(str(scoreList['dreamlo']["leaderboard"]['entry'][0]['score']), font, white, 50 +200, int(620/2)-100)
+                draw_text("2.  "+scoreList['dreamlo']["leaderboard"]['entry'][1]['name'] + ":", font, white, 50, int(620/2))
+                draw_text(str(scoreList['dreamlo']["leaderboard"]['entry'][1]['score']), font, white, 50 +200, int(620/2))            
+                draw_text("3.  "+scoreList['dreamlo']["leaderboard"]['entry'][2]['name'] + ":", font, white, 50, int(620/2)+100)
+                draw_text(str(scoreList['dreamlo']["leaderboard"]['entry'][2]['score']), font, white, 50 +200, int(620/2)+100)
             pygame.display.update()
+            clock.tick(60)
         await asyncio.sleep(0)
     pygame.quit
 asyncio.run(main())
-
-
-
-
