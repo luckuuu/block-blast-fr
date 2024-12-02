@@ -390,29 +390,7 @@ class Button:
         self.image = image
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
-    
-    def draw(self):
-
-        self.action = False
-
-        #get mouse pos
-        m_pos = pygame.mouse.get_pos()
-
-        #check if mouse in on button
-        if self.rect.collidepoint(m_pos):
-            if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
-                self.clicked = True
-                self.action = True
-                
-            if pygame.mouse.get_pressed()[0] == 0:
-                self.action = False
-                self.clicked = False
-
-        #draw button
-        screen.blit(self.image, (self.rect.x, self.rect.y))
-
-        return self.action
-
+        
 
 
 title_font = pygame.font.Font(None, 40)
@@ -437,22 +415,6 @@ async def main():
     while running:
 
         if enter:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == pygame.KEYDOWN:
-                    if (event.key == pygame.K_LEFT or left_button.draw()) and game.game_over == False:
-                        game.move_left()
-                    if (event.key == pygame.K_RIGHT or right_button.draw()) and game.game_over == False:
-                        game.move_right()
-                    if (event.key == pygame.K_DOWN or down_button.draw()) and game.game_over == False:
-                        game.move_down()
-                        game.update_score(0, 1)
-                    if (event.key == pygame.K_UP or rotate_button.draw()) and game.game_over == False:
-                        game.rotate()
-                if event.type == GAME_UPDATE and game.game_over == False:
-                    game.move_down()
 
             #Drawing
             score_value_surface = title_font.render(str(game.score), True, Colors.white)
@@ -463,24 +425,53 @@ async def main():
             screen.blit(score_surface, (365, 20, 50, 50))
             screen.blit(next_surface, (375, 180, 50, 50))
 
+            screen.blit(left_button_img ,(340, 450))
+            screen.blit(right_button_img ,(410, 450))
+            screen.blit(down_button_img ,(375, 500))
+            screen.blit(rotate_button_img ,(375, 400))
+
             pygame.draw.rect(screen, Colors.light_blue, score_rect, 0, 10)
             screen.blit(score_value_surface, score_value_surface.get_rect(centerx = score_rect.centerx, 
                 centery = score_rect.centery))
             pygame.draw.rect(screen, Colors.light_blue, next_rect, 0, 10)
             game.draw(screen)
+            
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.KEYDOWN:
+                    if (event.key == pygame.K_LEFT) and game.game_over == False:
+                        game.move_left()
+                    if (event.key == pygame.K_RIGHT) and game.game_over == False:
+                        game.move_right()
+                    if (event.key == pygame.K_DOWN) and game.game_over == False:
+                        game.move_down()
+                        game.update_score(0, 1)
+                    if (event.key == pygame.K_UP) and game.game_over == False:
+                        game.rotate()
+                        
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    pos = event.pos
 
-            if left_button.draw():
-                game.move_left()
+                    if left_button.rect.collidepoint(pos):
+                        game.move_left()
 
-            if right_button.draw():
-                game.move_right()
+                    if right_button.rect.collidepoint(pos):
+                        game.move_right()
 
-            if down_button.draw():
-                game.move_down()
-                game.update_score(0, 1)
+                    if down_button.rect.collidepoint(pos):
+                        game.move_down()
+                        game.update_score(0, 1)
 
-            if rotate_button.draw():
-                game.rotate()
+                    if rotate_button.rect.collidepoint(pos):
+                        game.rotate()
+                    
+                
+                if event.type == GAME_UPDATE and game.game_over == False:
+                    game.move_down()
+
+            
             
             if game.game_over == True:
                 running = False
