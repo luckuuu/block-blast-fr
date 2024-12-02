@@ -19,6 +19,7 @@ import asyncio
 from fetch import RequestHandler
 
 pygame.init()
+pygame.display.set_caption("loading...")
 fps = 20
 score = 0
 hs = 0
@@ -57,12 +58,14 @@ async def get_user_name():
     global name
     while enter == False:
         UI_REFRESH_RATE = CLOCK.tick(60)/1000
+        pygame.key.start_text_input()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
             if event.type == pygame_gui.UI_TEXT_ENTRY_FINISHED and event.ui_object_id == "#main_text_entry":
                 enter = True
                 name = event.text
+                pygame.key.stop_text_input()
             
             MANAGER.process_events(event)
             await asyncio.sleep(0)
