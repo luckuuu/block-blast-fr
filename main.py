@@ -57,10 +57,10 @@ async def get_user_name():
     global name
     screen.fill("white")
     rect = screen.blit(link_font2.render("If on mobile, screenshot your score and", True, link_color), (25, 50))
-    rect = screen.blit(link_font2.render("email csedtetris@gmail or go to", True, link_color), (25, 85))
+    rect = screen.blit(link_font2.render("email csedtetris@gmail w/id or go to", True, link_color), (25, 85))
     rect = screen.blit(link_font2.render("https://forms.gle/Rcr12XwK1eYrc6Bu8", True, link_color), (25, 125))
-    rect2 = screen.blit(link_font3.render("On desktop, type your school username", True, link_color), (20, 200))
-    rect3 = screen.blit(link_font3.render("(ex. vinpat2) in the box below and hit enter", True, link_color), (20, 250))
+    rect2 = screen.blit(link_font3.render("On desktop, type your school ID number", True, link_color), (20, 200))
+    rect3 = screen.blit(link_font3.render("(ex. 81768) in the box below and hit enter", True, link_color), (20, 250))
     rect4 = screen.blit(link_font4.render("If on mobile, click here to start", True, link_color2), (65, 500))
     while enter == False:
         UI_REFRESH_RATE = CLOCK.tick(60)/1000
